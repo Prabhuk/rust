@@ -2398,6 +2398,7 @@ unsafe extern "C" {
         Singlethread: bool,
         VerboseAsm: bool,
         EmitStackSizeSection: bool,
+        EmitCallGraphSection: bool,
         RelaxELFRelocations: bool,
         UseInitArray: bool,
         SplitDwarfFile: *const c_char,

@@ -180,6 +180,13 @@ impl CodegenBackend for LlvmCodegenBackend {
     fn init(&mut self, sess: &EarlySession) -> CodegenBackendInit {
         llvm_util::init(sess); // Make sure llvm is inited
 
+        // `-Zcall-graph-section` relies on the `!callgraph` function metadata and the
+        // `!callee_type` call site metadata consumed by LLVM's `.llvm.callgraph` section emitter,
+        // which were introduced in LLVM 23.
+        if sess.opts.unstable_opts.call_graph_section && llvm_util::get_version() < (23, 0, 0) {
+            sess.dcx().emit_fatal(crate::diagnostics::CallGraphSectionRequiresNewerLlvm);
+        }
+
         let global_backend_features =
             llvm_util::global_llvm_features(sess, /* for_cfg */ false);
 

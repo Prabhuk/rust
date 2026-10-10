@@ -329,8 +329,14 @@ pub(crate) struct SanitizerCfiCanonicalJumpTablesRequiresCfi;
 pub(crate) struct SanitizerCfiGeneralizePointersRequiresCfi;
 
 #[derive(Diagnostic)]
-#[diag("`-Zsanitizer-cfi-normalize-integers` requires `-Zsanitizer=cfi` or `-Zsanitizer=kcfi`")]
+#[diag(
+    "`-Zsanitizer-cfi-normalize-integers` requires `-Zsanitizer=cfi`, `-Zsanitizer=kcfi`, or `-Zcall-graph-section`"
+)]
 pub(crate) struct SanitizerCfiNormalizeIntegersRequiresCfi;
+
+#[derive(Diagnostic)]
+#[diag("`-Zcall-graph-section` is only supported on targets that use the ELF object format")]
+pub(crate) struct CallGraphSectionRequiresElf;
 
 #[derive(Diagnostic)]
 #[diag("`-Zsanitizer-cfi-recover` requires `-Zsanitizer=cfi`")]

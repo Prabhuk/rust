@@ -232,6 +232,15 @@ impl<'ll, 'tcx> CodegenCx<'ll, 'tcx> {
             self.set_kcfi_type_metadata(llfn, kcfi_typeid);
         }
 
+        if self.tcx.sess.opts.unstable_opts.call_graph_section {
+            // Attach the type identifier that identifies this function as a potential target of
+            // indirect calls in the `.llvm.callgraph` section. Whether the function actually is a
+            // potential indirect call target (i.e., it is externally visible or has its address
+            // taken) is determined by LLVM when the section is emitted.
+            let typeid = self.call_graph_typeid(fn_abi, instance);
+            self.set_callgraph_type_metadata(llfn, &typeid);
+        }
+
         llfn
     }
 }

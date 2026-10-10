@@ -800,6 +800,7 @@ fn test_unstable_options_tracking_hash() {
             gcs: true,
         })
     );
+    tracked!(call_graph_section, true);
     tracked!(codegen_backend, Some("abc".to_string()));
     tracked!(codegen_emit_retag, Some(CodegenRetagOptions::default()));
     tracked!(

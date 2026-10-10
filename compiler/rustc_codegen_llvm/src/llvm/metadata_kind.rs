@@ -68,4 +68,5 @@ declare_fixed_metadata_kinds! {
     FIXED_MD_KIND(MD_coro_outside_frame, 39)
     FIXED_MD_KIND(MD_mmra, 40)
     FIXED_MD_KIND(MD_noalias_addrspace, 41)
+    FIXED_MD_KIND(MD_callee_type, 42)
 }

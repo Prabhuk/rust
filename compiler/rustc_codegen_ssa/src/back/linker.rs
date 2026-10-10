@@ -427,6 +427,12 @@ impl<'a> GccLinker<'a> {
             &format!("-plugin-opt={prefix}{opt_level}"),
             &format!("-plugin-opt={prefix}mcpu={}", self.target_cpu),
         ]);
+
+        // Like Clang does for `-fexperimental-call-graph-section`, tell the LLVM LTO plugin to
+        // emit the call graph section for the code it generates.
+        if self.sess.opts.unstable_opts.call_graph_section && self.codegen_backend == "llvm" {
+            self.link_arg("-plugin-opt=-call-graph-section");
+        }
     }
 
     fn build_dylib(&mut self, crate_type: CrateType, out_filename: &Path) {

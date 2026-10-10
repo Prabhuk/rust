@@ -1,0 +1,4 @@
+error: `-Zcall-graph-section` is only supported on targets that use the ELF object format
+
+error: aborting due to 1 previous error
+

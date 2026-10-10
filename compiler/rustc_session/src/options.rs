@@ -2433,6 +2433,9 @@ options! {
         "whether the stable interface is being built"),
     cache_proc_macros: bool = (false, parse_bool, [TRACKED],
         "cache the results of derive proc macro invocations (potentially unsound!) (default: no"),
+    call_graph_section: bool = (false, parse_bool, [TRACKED],
+        "emit a `.llvm.callgraph` section containing call graph metadata, including type \
+        identifiers for indirect call sites and potential indirect call targets (default: no)"),
     cf_protection: CFProtection = (CFProtection::None, parse_cfprotection, [TRACKED],
         "instrument control-flow architecture protection"),
     check_cfg_all_expected: bool = (false, parse_bool, [UNTRACKED],

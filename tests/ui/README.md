@@ -197,6 +197,12 @@ Defining custom auto traits with the `auto` keyword belongs to `tests/ui/auto-tr
 
 Tests for FFI with C varargs (`va_list`).
 
+## `tests/ui/call-graph-section/`: Call Graph Section
+
+Tests for the unstable `-Zcall-graph-section` flag, the Rust counterpart of Clang's
+`-fexperimental-call-graph-section`, which makes LLVM emit a `.llvm.callgraph` section. E.g. the
+flag is rejected for non-ELF targets and accepts `-Zsanitizer-cfi-normalize-integers`.
+
 ## `tests/ui/cast/`: Type Casting
 
 Tests for type casting using the `as` operator. Includes tests for valid/invalid casts between primitive types, trait objects, and custom types. For example, check that trying to cast `i32` into `bool` results in a helpful error message.

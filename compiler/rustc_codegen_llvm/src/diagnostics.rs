@@ -18,6 +18,10 @@ pub(crate) struct SymbolAlreadyDefined<'a> {
 #[diag("`-Zsanitizer=memtag` requires `-Ctarget-feature=+mte`")]
 pub(crate) struct SanitizerMemtagRequiresMte;
 
+#[derive(Diagnostic)]
+#[diag("`-Zcall-graph-section` requires LLVM 23 or newer")]
+pub(crate) struct CallGraphSectionRequiresNewerLlvm;
+
 pub(crate) struct ParseTargetMachineConfig<'a>(pub LlvmError<'a>);
 
 impl Diagnostic<'_> for ParseTargetMachineConfig<'_> {

@@ -350,10 +350,10 @@ extern "C" LLVMTargetMachineRef LLVMRustCreateTargetMachine(
     LLVMRustCodeGenOptLevel RustOptLevel, LLVMRustFloatABI RustFloatABIType,
     bool FunctionSections, bool DataSections, bool UniqueSectionNames,
     bool TrapUnreachable, bool Singlethread, bool VerboseAsm,
-    bool EmitStackSizeSection, bool X86RelaxRelocations, bool UseInitArray,
-    const char *SplitDwarfFile, const char *OutputObjFile,
-    LLVMRustCompressionKind DebugInfoCompression, bool UseEmulatedTls,
-    bool UseWasmEH, uint64_t LargeDataThreshold) {
+    bool EmitStackSizeSection, bool EmitCallGraphSection,
+    bool X86RelaxRelocations, bool UseInitArray, const char *SplitDwarfFile,
+    const char *OutputObjFile, LLVMRustCompressionKind DebugInfoCompression,
+    bool UseEmulatedTls, bool UseWasmEH, uint64_t LargeDataThreshold) {
 
   auto OptLevel = fromRust(RustOptLevel);
   auto RM = fromRust(RustReloc);
@@ -426,6 +426,7 @@ extern "C" LLVMTargetMachineRef LLVMRustCreateTargetMachine(
     Options.ExceptionModel = ExceptionHandling::Wasm;
 
   Options.EmitStackSizeSection = EmitStackSizeSection;
+  Options.EmitCallGraphSection = EmitCallGraphSection;
 
   TargetMachine *TM = TheTarget->createTargetMachine(Trip, CPU, Feature,
                                                      Options, RM, CM, OptLevel);

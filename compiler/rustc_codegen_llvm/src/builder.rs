@@ -507,6 +507,10 @@ impl<'a, 'll, 'tcx> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
         if let Some(fn_abi) = fn_abi {
             fn_abi.apply_attrs_callsite(self, invoke);
         }
+
+        // Emit call graph section callee type metadata
+        self.callee_type_metadata(fn_abi, instance, llfn, invoke);
+
         invoke
     }
 
@@ -1521,6 +1525,10 @@ impl<'a, 'll, 'tcx> BuilderMethods<'a, 'tcx> for Builder<'a, 'll, 'tcx> {
         if let Some(fn_abi) = fn_abi {
             fn_abi.apply_attrs_callsite(self, call);
         }
+
+        // Emit call graph section callee type metadata
+        self.callee_type_metadata(fn_abi, callee_instance, llfn, call);
+
         call
     }
 
@@ -1995,6 +2003,10 @@ impl<'a, 'll, 'tcx> Builder<'a, 'll, 'tcx> {
         if let Some(fn_abi) = fn_abi {
             fn_abi.apply_attrs_callsite(self, callbr);
         }
+
+        // Emit call graph section callee type metadata
+        self.callee_type_metadata(fn_abi, instance, llfn, callbr);
+
         callbr
     }
 
@@ -2177,6 +2189,27 @@ impl<'a, 'll, 'tcx> Builder<'a, 'll, 'tcx> {
             None
         };
         kcfi_bundle
+    }
+
+    // Emits call graph section callee type metadata for indirect calls.
+    fn callee_type_metadata(
+        &mut self,
+        fn_abi: Option<&FnAbi<'tcx, Ty<'tcx>>>,
+        instance: Option<Instance<'tcx>>,
+        llfn: &'ll Value,
+        call: &'ll Value,
+    ) {
+        let is_indirect_call = unsafe { llvm::LLVMRustIsNonGVFunctionPointerTy(llfn) };
+        if self.tcx.sess.opts.unstable_opts.call_graph_section
+            && let Some(fn_abi) = fn_abi
+            && is_indirect_call
+        {
+            // Record the type identifier of the potential targets of this indirect call, so that
+            // the `.llvm.callgraph` section can associate it with the functions that carry the
+            // same type identifier (see `CodegenCx::call_graph_typeid`).
+            let typeid = self.cx.call_graph_typeid(fn_abi, instance);
+            self.cx.set_callee_type_metadata(call, &typeid);
+        }
     }
 
     // Emits pauth operand bundle.

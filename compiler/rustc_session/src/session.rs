@@ -28,9 +28,9 @@ use rustc_span::{RealFileName, Span, Symbol};
 use rustc_structures::{CrateType, Limit};
 use rustc_target::asm::InlineAsmArch;
 use rustc_target::spec::{
-    Arch, CfgAbi, CodeModel, DebuginfoKind, MergeFunctions, Os, PanicStrategy, RelocModel,
-    RelroLevel, SanitizerSet, SmallDataThresholdSupport, SplitDebuginfo, StackProtector,
-    SymbolVisibility, Target, TargetTuple, TlsModel, apple,
+    Arch, BinaryFormat, CfgAbi, CodeModel, DebuginfoKind, MergeFunctions, Os, PanicStrategy,
+    RelocModel, RelroLevel, SanitizerSet, SmallDataThresholdSupport, SplitDebuginfo,
+    StackProtector, SymbolVisibility, Target, TargetTuple, TlsModel, apple,
 };
 
 use crate::code_stats::CodeStats;
@@ -1705,11 +1705,21 @@ fn validate_commandline_args_with_session_available(sess: &Session) {
         }
     }
 
-    // LLVM CFI integer normalization requires CFI or KCFI.
+    // LLVM CFI integer normalization requires CFI, KCFI, or the call graph section (which encodes
+    // type identifiers the same way).
     if sess.is_sanitizer_cfi_normalize_integers_enabled() {
-        if !(sess.is_sanitizer_cfi_enabled() || sess.is_sanitizer_kcfi_enabled()) {
+        if !(sess.is_sanitizer_cfi_enabled()
+            || sess.is_sanitizer_kcfi_enabled()
+            || sess.opts.unstable_opts.call_graph_section)
+        {
             sess.dcx().emit_err(diagnostics::SanitizerCfiNormalizeIntegersRequiresCfi);
         }
+    }
+
+    // The call graph section is only defined for ELF.
+    if sess.opts.unstable_opts.call_graph_section && sess.target.binary_format != BinaryFormat::Elf
+    {
+        sess.dcx().emit_err(diagnostics::CallGraphSectionRequiresElf);
     }
 
     // LTO unit splitting requires LTO.

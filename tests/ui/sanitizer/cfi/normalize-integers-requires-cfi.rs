@@ -1,5 +1,5 @@
-// Verifies that `-Zsanitizer-cfi-normalize-integers` requires `-Zsanitizer=cfi` or
-// `-Zsanitizer=kcfi`
+// Verifies that `-Zsanitizer-cfi-normalize-integers` requires `-Zsanitizer=cfi`,
+// `-Zsanitizer=kcfi`, or `-Zcall-graph-section`
 //
 //@ needs-sanitizer-cfi
 //@ compile-flags: -Clto -Cno-prepopulate-passes -Ctarget-feature=-crt-static -Zsanitizer-cfi-normalize-integers
@@ -8,4 +8,4 @@
 #![no_core]
 #![no_main]
 
-//~? ERROR `-Zsanitizer-cfi-normalize-integers` requires `-Zsanitizer=cfi` or `-Zsanitizer=kcfi`
+//~? ERROR `-Zsanitizer-cfi-normalize-integers` requires `-Zsanitizer=cfi`, `-Zsanitizer=kcfi`, or `-Zcall-graph-section`

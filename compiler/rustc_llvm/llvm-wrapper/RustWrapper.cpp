@@ -1803,6 +1803,7 @@ FIXED_MD_KIND(MD_DIAssignID, 38)
 FIXED_MD_KIND(MD_coro_outside_frame, 39)
 FIXED_MD_KIND(MD_mmra, 40)
 FIXED_MD_KIND(MD_noalias_addrspace, 41)
+FIXED_MD_KIND(MD_callee_type, 42)
 // If some fixed metadata kinds are not present and consistent in all supported
 // LLVM versions, it's fine to omit them from this list; in that case Rust-side
 // code cannot declare them as fixed IDs and must look them up by name instead.

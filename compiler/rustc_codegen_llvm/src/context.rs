@@ -20,6 +20,7 @@ use rustc_middle::ty::layout::{
     codegen_handle_fn_abi_err,
 };
 use rustc_middle::ty::{self, Instance, Ty, TyCtxt};
+use rustc_sanitizers::cfi;
 use rustc_sanitizers::ignorelist::{SanitizerIgnoreList, typename_for_ignore_list};
 use rustc_session::config::{
     BranchProtection, CFGuard, CFProtection, DebugInfo, FunctionReturn, PAuthKey, PacRet,
@@ -865,6 +866,43 @@ impl<'ll, 'tcx> CodegenCx<'ll, 'tcx> {
             ignorelist.contains_prefix(sanitizer, c"type", &type_name)
         })
     }
+
+    /// Returns the type identifier used by the `.llvm.callgraph` section (see
+    /// `-Zcall-graph-section`) to associate indirect call sites with their potential targets.
+    ///
+    /// Like Clang's `-fexperimental-call-graph-section`, this reuses the Itanium C++ ABI type
+    /// identifier encoding of LLVM CFI, including integer normalization when
+    /// `-Zsanitizer-cfi-normalize-integers` is enabled. As for cross-language LLVM CFI, this is
+    /// what makes the type identifiers of `extern "C"` functions and function pointers match the
+    /// ones Clang emits for C code compiled with
+    /// `-fsanitize-cfi-icall-experimental-normalize-integers`.
+    ///
+    /// The section records a single type identifier per function, so, like KCFI, only the primary
+    /// type identifier of an instance is used: the self type of methods is erased, which makes the
+    /// type identifier of a trait method implementation match the type identifier of calls to it
+    /// through trait objects (the most common kind of indirect call in Rust).
+    pub(crate) fn call_graph_typeid(
+        &self,
+        fn_abi: &rustc_target::callconv::FnAbi<'tcx, Ty<'tcx>>,
+        instance: Option<Instance<'tcx>>,
+    ) -> String {
+        let mut options = cfi::TypeIdOptions::empty();
+        if self.tcx.sess.is_sanitizer_cfi_normalize_integers_enabled() {
+            options.insert(cfi::TypeIdOptions::NORMALIZE_INTEGERS);
+        }
+        let mut typeid = if let Some(instance) = instance {
+            cfi::typeid_for_instance(self.tcx, instance, options)
+        } else {
+            cfi::typeid_for_fnabi(self.tcx, fn_abi, options)
+        };
+        // LLVM 23 only recognizes type identifiers with a `.generalized` suffix in `!callgraph`
+        // and `!callee_type` metadata (which is what Clang 23 emits for its call graph section,
+        // without actually generalizing pointers). LLVM 24 lifted this restriction.
+        if llvm_util::get_version() < (24, 0, 0) {
+            typeid.push_str(".generalized");
+        }
+        typeid
+    }
 }
 impl<'ll> SimpleCx<'ll> {
     pub(crate) fn get_type_of_global(&self, val: &'ll Value) -> &'ll Type {
@@ -1248,6 +1286,26 @@ impl<'ll, CX: Borrow<SCx<'ll>>> GenericCx<'ll, CX> {
     ) {
         let md = self.md_node_in_context(md_list);
         unsafe { llvm::LLVMGlobalSetMetadata(global, kind_id, md) };
+    }
+
+    /// Attaches `!callgraph !{!"<typeid>"}` metadata to `function` (replacing any existing
+    /// `!callgraph` metadata). This is the type identifier that the `.llvm.callgraph` section
+    /// records for `function` if it is a potential indirect call target.
+    pub(crate) fn set_callgraph_type_metadata(&self, function: &'ll Value, typeid: &str) {
+        let typeid_metadata = self.create_metadata(typeid.as_bytes());
+        // `callgraph` is not a fixed metadata kind in all supported LLVM versions, so it has to
+        // be looked up by name.
+        let kind_id = self.get_md_kind_id("callgraph");
+        self.global_set_metadata_node(function, kind_id, &[typeid_metadata]);
+    }
+
+    /// Attaches `!callee_type !{!{!"<typeid>"}}` metadata to the indirect call `call`. This is the
+    /// type identifier of the potential targets of `call` that the `.llvm.callgraph` section
+    /// records for the calling function.
+    pub(crate) fn set_callee_type_metadata(&self, call: &'ll Value, typeid: &str) {
+        let typeid_metadata = self.create_metadata(typeid.as_bytes());
+        let callgraph_metadata = self.md_node_in_context(&[typeid_metadata]);
+        self.set_metadata_node(call, llvm::MD_callee_type, &[callgraph_metadata]);
     }
 }
 

@@ -204,6 +204,7 @@ pub(crate) fn target_machine_factory(
     let trap_unreachable =
         sess.opts.unstable_opts.trap_unreachable.unwrap_or(sess.target.trap_unreachable);
     let emit_stack_size_section = sess.opts.unstable_opts.emit_stack_sizes;
+    let emit_call_graph_section = sess.opts.unstable_opts.call_graph_section;
 
     let verbose_asm = sess.opts.unstable_opts.verbose_asm;
     let relax_x86_elf_relocations =
@@ -275,6 +276,7 @@ pub(crate) fn target_machine_factory(
             singlethread,
             verbose_asm,
             emit_stack_size_section,
+            emit_call_graph_section,
             relax_x86_elf_relocations,
             use_init_array,
             &split_dwarf_file,
