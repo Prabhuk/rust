@@ -22,7 +22,7 @@ indirect calls, for example to compute worst-case stack usage.
 
 > **NOTE**: The call graph section is only defined for the ELF object format.
 > Using this flag with targets that use other object formats (e.g. macOS and
-> Windows) is an error. LLVM 23 or newer is required.
+> Windows) is an error. LLVM 24 or newer is required.
 
 ## Type identifiers
 

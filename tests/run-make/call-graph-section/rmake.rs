@@ -6,8 +6,8 @@
 //@ needs-target-std
 //@ only-elf
 // Reason: this feature only works when the output object format is ELF.
-//@ min-llvm-version: 23
-// Reason: the metadata consumed by the LLVM call graph section emitter was introduced in LLVM 23.
+//@ min-llvm-version: 24
+// Reason: the type identifiers emitted for the call graph section are only accepted by LLVM 24.
 //@ ignore-backends: gcc
 
 use run_make_support::{llvm_readobj, rustc};

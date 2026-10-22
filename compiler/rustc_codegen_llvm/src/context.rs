@@ -890,18 +890,11 @@ impl<'ll, 'tcx> CodegenCx<'ll, 'tcx> {
         if self.tcx.sess.is_sanitizer_cfi_normalize_integers_enabled() {
             options.insert(cfi::TypeIdOptions::NORMALIZE_INTEGERS);
         }
-        let mut typeid = if let Some(instance) = instance {
+        if let Some(instance) = instance {
             cfi::typeid_for_instance(self.tcx, instance, options)
         } else {
             cfi::typeid_for_fnabi(self.tcx, fn_abi, options)
-        };
-        // LLVM 23 only recognizes type identifiers with a `.generalized` suffix in `!callgraph`
-        // and `!callee_type` metadata (which is what Clang 23 emits for its call graph section,
-        // without actually generalizing pointers). LLVM 24 lifted this restriction.
-        if llvm_util::get_version() < (24, 0, 0) {
-            typeid.push_str(".generalized");
         }
-        typeid
     }
 }
 impl<'ll> SimpleCx<'ll> {

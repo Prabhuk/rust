@@ -19,7 +19,7 @@ pub(crate) struct SymbolAlreadyDefined<'a> {
 pub(crate) struct SanitizerMemtagRequiresMte;
 
 #[derive(Diagnostic)]
-#[diag("`-Zcall-graph-section` requires LLVM 23 or newer")]
+#[diag("`-Zcall-graph-section` requires LLVM 24 or newer")]
 pub(crate) struct CallGraphSectionRequiresNewerLlvm;
 
 pub(crate) struct ParseTargetMachineConfig<'a>(pub LlvmError<'a>);

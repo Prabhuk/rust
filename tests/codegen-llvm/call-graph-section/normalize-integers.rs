@@ -10,7 +10,7 @@
 //@ [x86_64] compile-flags: --target x86_64-unknown-none
 //@ [x86_64] needs-llvm-components: x86
 //@ compile-flags: -Cno-prepopulate-passes -Copt-level=0 -Zcall-graph-section -Zsanitizer-cfi-normalize-integers
-//@ min-llvm-version: 23
+//@ min-llvm-version: 24
 
 #![crate_type = "lib"]
 #![feature(no_core, lang_items)]
@@ -33,5 +33,5 @@ pub fn indirect(f: extern "C" fn(isize, bool) -> isize, arg: isize) -> isize {
 
 // With integer normalization, `isize` is encoded as the fixed-width integer type of the same size
 // and `bool` as `u8`, and the type identifier carries the `.normalized` suffix.
-// CHECK-DAG: ![[TARGET_TYPE]] = !{!"_ZTSFu3i64S_u2u8E.normalized{{(\.generalized)?}}"}
+// CHECK-DAG: ![[TARGET_TYPE]] = !{!"_ZTSFu3i64S_u2u8E.normalized"}
 // CHECK-DAG: ![[CALLEE_TYPE]] = !{![[TARGET_TYPE]]}

@@ -9,7 +9,7 @@
 //@ [x86_64] compile-flags: --target x86_64-unknown-none
 //@ [x86_64] needs-llvm-components: x86
 //@ compile-flags: -Cno-prepopulate-passes -Copt-level=0 -Zcall-graph-section
-//@ min-llvm-version: 23
+//@ min-llvm-version: 24
 
 #![crate_type = "lib"]
 #![feature(no_core, lang_items)]
@@ -60,7 +60,7 @@ pub fn make_dyn() -> (&'static dyn Trait1, &'static dyn Trait2<i32>) {
     (&Type1, &Type2)
 }
 
-// CHECK-DAG: ![[TYPE1]] = !{!"_ZTSFvu3refIu3dynIu{{[0-9]+}}NtC{{[[:print:]]+}}_{{[[:print:]]+}}6Trait1u6regionEEE{{(\.generalized)?}}"}
+// CHECK-DAG: ![[TYPE1]] = !{!"_ZTSFvu3refIu3dynIu{{[0-9]+}}NtC{{[[:print:]]+}}_{{[[:print:]]+}}6Trait1u6regionEEE"}
 // CHECK-DAG: ![[CALLEE_TYPE1]] = !{![[TYPE1]]}
-// CHECK-DAG: ![[TYPE2]] = !{!"_ZTSFu3i32u3refIu3dynIu{{[0-9]+}}NtC{{[[:print:]]+}}_{{[[:print:]]+}}6Trait2IS_Eu6regionEES_E{{(\.generalized)?}}"}
+// CHECK-DAG: ![[TYPE2]] = !{!"_ZTSFu3i32u3refIu3dynIu{{[0-9]+}}NtC{{[[:print:]]+}}_{{[[:print:]]+}}6Trait2IS_Eu6regionEES_E"}
 // CHECK-DAG: ![[CALLEE_TYPE2]] = !{![[TYPE2]]}

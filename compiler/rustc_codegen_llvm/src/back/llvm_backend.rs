@@ -181,9 +181,10 @@ impl CodegenBackend for LlvmCodegenBackend {
         llvm_util::init(sess); // Make sure llvm is inited
 
         // `-Zcall-graph-section` relies on the `!callgraph` function metadata and the
-        // `!callee_type` call site metadata consumed by LLVM's `.llvm.callgraph` section emitter,
-        // which were introduced in LLVM 23.
-        if sess.opts.unstable_opts.call_graph_section && llvm_util::get_version() < (23, 0, 0) {
+        // `!callee_type` call site metadata consumed by LLVM's `.llvm.callgraph` section emitter.
+        // LLVM 24 is the first version that accepts the type identifiers emitted here (LLVM 23
+        // only recognized type identifiers carrying a `.generalized` suffix).
+        if sess.opts.unstable_opts.call_graph_section && llvm_util::get_version() < (24, 0, 0) {
             sess.dcx().emit_fatal(crate::diagnostics::CallGraphSectionRequiresNewerLlvm);
         }
 

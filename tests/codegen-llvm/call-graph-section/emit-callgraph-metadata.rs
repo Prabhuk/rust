@@ -9,7 +9,7 @@
 //@ [x86_64] compile-flags: --target x86_64-unknown-none
 //@ [x86_64] needs-llvm-components: x86
 //@ compile-flags: -Cno-prepopulate-passes -Copt-level=0 -Zcall-graph-section
-//@ min-llvm-version: 23
+//@ min-llvm-version: 24
 
 #![crate_type = "lib"]
 #![feature(no_core, lang_items)]
@@ -40,7 +40,6 @@ pub fn direct(arg: i32) -> i32 {
     target(arg)
 }
 
-// LLVM 23 requires call graph type identifiers to carry a `.generalized` suffix.
-// CHECK-DAG: ![[INDIRECT_TYPE]] = !{!"_ZTSFu3i32PFS_S_ES_E{{(\.generalized)?}}"}
-// CHECK-DAG: ![[TARGET_TYPE]] = !{!"_ZTSFu3i32S_E{{(\.generalized)?}}"}
+// CHECK-DAG: ![[INDIRECT_TYPE]] = !{!"_ZTSFu3i32PFS_S_ES_E"}
+// CHECK-DAG: ![[TARGET_TYPE]] = !{!"_ZTSFu3i32S_E"}
 // CHECK-DAG: ![[CALLEE_TYPE]] = !{![[TARGET_TYPE]]}
